@@ -1,1 +1,24 @@
-Here would be demo for Hard Life problem
+<!doctype html>
+
+<html>
+<head>
+    <title>Game of Life in JavaScript</title>
+    <script src="./canvashelper.js"></script>
+    <script src="./hardlife.js"></script>
+</head>
+<body>
+    <div><div style="text-align:center">
+    <canvas id="demo" width="600" height="400" style="border:5px solid #888;border-radius: 5px;background: black;"></canvas>
+    <br/>
+        <input type="button" onclick="hardLife.startStop()" value="Start / Stop"/>
+        <input type="button" onclick="hardLife.reset()" value="Reset"/>
+    </div>
+
+    <script>
+    window.onload = function() {
+        hardLife = new HardLife({});
+    }
+    </script>
+
+</body>
+

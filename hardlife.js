@@ -40,9 +40,14 @@ HardLife.prototype.setupGeometry = function(canvas) {
 HardLife.prototype.initialSetup = function() {
     this.cells = [];
     this.count = 0;
-    this.pattern(0, 0, [0, 0, -1, 0, 0, -1, 0, 1, 1, 1]);
-    this.pattern(-120, Math.floor(Math.random() * 50 - 25), [0, 0, -1, 0, -2, 0, -3, 0, -4, 1, 0, 1, 0, 2, -1, 3]);
-    this.pattern(120, Math.floor(Math.random() * 50 - 25), [0, 0, 1, 0, 2, 0, 3, 0, 4, 1, 0, 1, 0, 2, 1, 3]);
+    if (Math.random() > 0.5) {
+        this.pattern(0, 0, [0, 0, -1, 0, 0, -1, 0, 1, 1, 1]);
+    } else {
+        this.pattern(0, 0, [0, 0, 1, 0, 1, 2, 3, 1, 4, 0, 5, 0, 6, 0]);
+    }
+    var delta = Math.floor(Math.random() * 20) + 50;
+    var offs = Math.floor(Math.random() * 20) - 10;
+    this.pattern(offs - delta, delta, [-2, 0, -1, 0, 0, 0, 0, 1, -1, 2]);
     this.moves = 0;
 }
 

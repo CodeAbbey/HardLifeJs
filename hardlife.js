@@ -28,6 +28,8 @@ HardLife.prototype.init = function() {
     this.ch = new CanvasHelper(canvas, this.ctx);
     this.initialSetup();
     this.draw();
+    var self = this;
+    canvas.onmousedown = function(e) {self.click(e)};
 }
 
 HardLife.prototype.setupGeometry = function(canvas) {
@@ -37,21 +39,36 @@ HardLife.prototype.setupGeometry = function(canvas) {
 
 HardLife.prototype.initialSetup = function() {
     this.cells = [];
+    this.count = 0;
     this.pattern(0, 0, [0, 0, -1, 0, 0, -1, 0, 1, 1, 1]);
+    this.pattern(-120, Math.floor(Math.random() * 50 - 25), [0, 0, -1, 0, -2, 0, -3, 0, -4, 1, 0, 1, 0, 2, -1, 3]);
+    this.pattern(120, Math.floor(Math.random() * 50 - 25), [0, 0, 1, 0, 2, 0, 3, 0, 4, 1, 0, 1, 0, 2, 1, 3]);
+    this.moves = 0;
 }
 
 HardLife.prototype.pattern = function(x, y, p) {
     for (var i = 0; i < p.length; i += 2) {
         var px = p[i] + x;
         var py = p[i + 1] + y;
-        this.cells[px + ' ' + py] = 1;
+        var cell = px + ' ' + py;
+        if (!this.cells[cell]) {
+            this.cells[cell] = 1;
+            this.count += 1;
+        }
     }
 }
 
 HardLife.prototype.draw = function() {
     var ctx = this.ctx;
+    ctx.font = "12pt Arial";
+    ctx.textBaseLine = "bottom";
+    ctx.textAlign = "left";
     ctx.fillStyle = '#000088';
     ctx.fillRect(0, 0, this.w * this.size, this.h * this.size);
+    ctx.fillStyle = '#00C000';
+    ctx.fillText(this.count, 0, this.h * this.size - 1);
+    ctx.textAlign = "right";
+    ctx.fillText(this.moves, this.w * this.size - 1, this.h * this.size - 1);
     var cx = Math.floor(this.w / 2) * this.size;
     var cy = Math.floor(this.h / 2) * this.size;
     ctx.fillStyle = '#FFFF00';
@@ -68,10 +85,13 @@ HardLife.prototype.step = function() {
     var born = this.generateBorn();
     for (var dcell in dead) {
         delete this.cells[dcell];
+        this.count -= 1;
     }
     for (var bcell in born) {
         this.cells[bcell] = 1;
+        this.count += 1;
     }
+    this.moves += 1;
     this.draw();
 }
 
@@ -102,7 +122,10 @@ HardLife.prototype.generateEmptyNeighs = function() {
     var self = this;
     for (var cell in this.cells) {
         this.enumNeighs(cell, function(x, y) {
-            res[x + ' ' + y] = 1;
+            var xy = x + ' ' + y;
+            if (!self.cells[xy]) {
+                res[x + ' ' + y] = 1;
+            }
         });
     }
     return res;
@@ -132,13 +155,12 @@ HardLife.prototype.enumNeighs = function(cell, f) {
 
 HardLife.prototype.run = function() {
     var self = this;
-    
     var runner = function() {
         if (!self.running) {
             return;
         }
         self.step();
-        setInterval(runner, 300);
+        setTimeout(runner, 50);
     }
 
     if (this.running) {
@@ -163,3 +185,25 @@ HardLife.prototype.reset = function() {
     this.initialSetup();
     this.draw();
 }
+
+HardLife.prototype.click = function(event) {
+    if (this.running) {
+        return;
+    }
+    event.preventDefault();
+    var pos = this.ch.posFromEvent(event);
+    pos.x -= Math.floor(this.w / 2) * this.size;
+    pos.y -= Math.floor(this.h / 2) * this.size;
+    pos.x = Math.floor(pos.x / this.size);
+    pos.y = - Math.floor(pos.y / this.size) + 1;
+    var cell = pos.x + ' ' + pos.y;
+    if (this.cells[cell]) {
+        delete this.cells[cell];
+        this.count -= 1;
+    } else {
+        this.cells[cell] = 1;
+        this.count += 1;
+    }
+    this.draw();
+}
+
